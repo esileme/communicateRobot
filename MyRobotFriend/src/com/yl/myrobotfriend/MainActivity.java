@@ -93,19 +93,17 @@ public class MainActivity extends Activity {
 				holder.tvAnswer = (TextView) coverView
 						.findViewById(R.id.tv_answer);
 				holder.ivPic = (ImageView) coverView.findViewById(R.id.iv_pic);
-				coverView = View.inflate(MainActivity.this, R.layout.list_item,
-						null);
 				coverView.setTag(holder);
 			} else {
 				holder = (viewHolder) coverView.getTag();
 			}
 
-			ChatBean item = getItem(position);// 强转
+			ChatBean item = getItem(position);
 
 			if (item.isAsker) {// 判断是不是提问者
 				holder.tvAsk.setVisibility(View.VISIBLE);
 				holder.llAnswer.setVisibility(View.GONE);
-				holder.tvAnswer.setText(item.text);
+				holder.tvAsk.setText(item.text);
 			} else {
 				holder.tvAnswer.setVisibility(View.GONE);
 				holder.llAnswer.setVisibility(View.VISIBLE);
