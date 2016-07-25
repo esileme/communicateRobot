@@ -1,9 +1,12 @@
 package com.yl.myrobotfriend;
 
 import java.util.ArrayList;
+import java.util.Random;
 
+import android.R.integer;
 import android.R.string;
 import android.app.Activity;
+import android.content.ClipData.Item;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +20,7 @@ import com.google.gson.Gson;
 import com.iflytek.cloud.RecognizerResult;
 import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechError;
+import com.iflytek.cloud.SpeechSynthesizer;
 import com.iflytek.cloud.SpeechUtility;
 import com.iflytek.cloud.ui.RecognizerDialog;
 import com.iflytek.cloud.ui.RecognizerDialogListener;
@@ -26,6 +30,10 @@ public class MainActivity extends Activity {
 	private ListView lvList;
 	private ArrayList<ChatBean> mChatList = new ArrayList<ChatBean>();// 定义聊天数组内容集合
 	private ChatAdapter mAdapter;
+	private String[] mMMAnswers = new String[] { "1", "2", "3", "4", "5", "6",
+			"7", "8" };
+	private int[] mMMImageIds = new int[] { R.drawable.p1, R.drawable.p2,
+			R.drawable.p3, R.drawable.p4 };
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -105,7 +113,7 @@ public class MainActivity extends Activity {
 				holder.llAnswer.setVisibility(View.GONE);
 				holder.tvAsk.setText(item.text);
 			} else {
-				holder.tvAnswer.setVisibility(View.GONE);
+				holder.tvAsk.setVisibility(View.GONE);
 				holder.llAnswer.setVisibility(View.VISIBLE);
 				holder.tvAnswer.setText(item.text);
 				if (item.imageId != -1) {
@@ -154,8 +162,47 @@ public class MainActivity extends Activity {
 				mTextBuffer = new StringBuffer();// 清楚buffer
 				System.out.println("最终结果" + finalText);
 				mChatList.add(new ChatBean(finalText, true, -1));// 将回话内容添加进去
+
+				String answer = "没听清";
+				int imageId = -1;
+				if (finalText.contains("你好")) {
+					answer = "我不错";
+				} else if (finalText.contains("呵呵")) {
+					answer = "啊";
+				} else if (finalText.contains("猫")) {
+					answer = "这就是猫";
+					imageId = R.drawable.m;
+				} else if (finalText.contains("嗯")) {
+					Random random = new Random();
+					int i = random.nextInt(mMMAnswers.length);
+					int j = random.nextInt(mMMImageIds.length);
+					answer = mMMAnswers[i];
+					imageId = mMMImageIds[j];
+
+				}
+
+				mChatList.add(new ChatBean(answer, false, imageId));
+				lvList.setSelection(mChatList.size() - 1);
 				mAdapter.notifyDataSetChanged();// 刷新listview
+				readAnswer(answer);
 			}
+		}
+
+		/**
+		 * 读机器说出的 话
+		 * 
+		 * @param text
+		 */
+		public void readAnswer(String text) {
+			SpeechSynthesizer mTts= SpeechSynthesizer.createSynthesizer(MainActivity.this, null);
+			mTts.setParameter(SpeechConstant.VOICE_NAME, "xiaoyan");
+			mTts.setParameter(SpeechConstant.SPEED, "50");
+			mTts.setParameter(SpeechConstant.VOLUME, "80");
+			mTts.setParameter(SpeechConstant.ENGINE_TYPE,
+					SpeechConstant.TYPE_CLOUD);
+
+			mTts.startSpeaking(text, null);
+
 		}
 
 		@Override
